@@ -9,7 +9,7 @@ def format_export_data(raw_data):
     rows = []
 
     # Header rows
-    rows.append(["Export Timestamp:", timestamp])
+    rows.append(["Created At:", timestamp])
     rows.append(["Filters Used:", filters_str])
     rows.append([])  # Spacer row
 
@@ -19,10 +19,13 @@ def format_export_data(raw_data):
         "Total Results",
         "Filtered Results",
         "Alignment Score (1-10)",
-        "Top Manufacturers"
     ])
 
+    # Add explanatory note below the headers
+    rows.append(["", "", "", "Based on % of drug variants matching your selected filters"])
+
     drug_summaries = raw_data.get("summary", [])
+    manufacturer_sections = []
 
     for summary in drug_summaries:
         drug_name = summary["drug_name"]
@@ -30,9 +33,20 @@ def format_export_data(raw_data):
         filtered = summary.get("filtered_results", 0)
         alignment_score = calculate_alignment_score(filtered, total)
         manufacturer_counts = count_manufacturers(summary.get("data", []))
-        top_mfrs = ", ".join([f"{k} ({v})" for k, v in manufacturer_counts.items()])
 
-        rows.append([drug_name, total, filtered, alignment_score, top_mfrs])
+        rows.append([drug_name, total, filtered, alignment_score])
+
+        # Spacer and manufacturer breakdown section
+        manufacturer_sections.append([])
+        manufacturer_sections.append([f"Top Manufacturers for {drug_name}", "Count"])
+        for name, count in manufacturer_counts.items():
+            manufacturer_sections.append([name, count])
+
+    # Final blank line between summary and manufacturer breakdowns
+    rows.append([])
+
+    # Add manufacturer sections to the export
+    rows.extend(manufacturer_sections)
 
     return rows
 
