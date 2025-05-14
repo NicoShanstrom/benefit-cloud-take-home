@@ -1,6 +1,0 @@
-// This tells the language server to treat src/ as the root for module imports. 
-{
-  "python.analysis.extraPaths": [
-    "./src"
-  ]
-}
