@@ -1,8 +1,10 @@
 # src/main.py
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import argparse
 from api.ichooserx_api import IChooseRxAPI
-from sheets.google_sheets import GoogleSheetsExporter
+from sheets.google_sheets import GoogleSheetsExporter  # Ensure sheets/google_sheets.py exists and sheets/__init__.py is present
 from utils.formatters import format_export_data, calculate_clean_score, count_manufacturers
 
 def main():

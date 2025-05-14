@@ -3,6 +3,7 @@
   "python.analysis.extraPaths": [
     "./src"
   ],
+  "python.envFile": "${workspaceFolder}/.env",
   "terminal.integrated.env.osx": {
     "PYTHONPATH": "${workspaceFolder}/src"
   }
