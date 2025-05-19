@@ -12,7 +12,7 @@ This is a CLI-based Python tool that pulls filtered drug data from the public iC
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/nicoshanstrom/benefit-cloud-take-home-project.git
+git clone https://github.com/NicoShanstrom/benefit-cloud-take-home-project.git
 cd benefit-cloud-take-home-project
 ```
 
