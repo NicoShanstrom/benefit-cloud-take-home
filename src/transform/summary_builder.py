@@ -22,15 +22,16 @@ def format_export_data(raw_data):
     all_manufacturer_sections = []
 
     for summary in raw_data.get("summary", []):
-        drug_name = summary["drug_name"]
-        total = summary.get("total_results", 0)
-        filtered = summary.get("filtered_results", 0)
+        attributes = summary.get("attributes", {})
+        drug_name = attributes.get("drug_name", "N/A")
+        total = attributes.get("total_results", 0)
+        filtered = attributes.get("filtered_results", 0)
         alignment_score = calculate_alignment_score(filtered, total)
 
         summary_data.append([drug_name, total, filtered, alignment_score])
 
-        mfr_counts = count_manufacturers(summary.get("data", []))
-        manufacturer_section = [[]]  
+        mfr_counts = count_manufacturers(attributes.get("variants", []))
+        manufacturer_section = [[]]
         manufacturer_section.append([f"Top Manufacturers for {drug_name}", "Count"])
 
         mfr_df = pd.DataFrame({
