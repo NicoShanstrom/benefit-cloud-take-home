@@ -41,7 +41,7 @@ Make sure your service account JSON credentials are saved at that path and that 
 
 ---
 
-## 🔍 Example API Response
+## Example API Response
 
 This is a sample of the JSON data returned by the iChooseRx export summaries endpoint when queried with:
 
@@ -162,7 +162,7 @@ GET /api/v1/export_summaries?drug_names[]=dextroamphetamine&drug_names[]=lisdexa
 }
 ```
 
-## 🧪 Usage (CLI input in Terminal)
+## Usage (CLI input in Terminal)
 
 ```bash
 python src/main.py --drug-names Dextroamphetamine Lisdexamfetamine --filters artificial_colors preservatives
@@ -188,7 +188,7 @@ python src/main.py --drug-names Dextroamphetamine Lisdexamfetamine --filters art
 
 ---
 
-## 🛠 Transformations Performed
+## Transformations Performed
 
 - The tool filters drug variants based on the user's selected ingredients/excipients to avoid.
 - It lists the drugs by filtered results in descending order for a user to see which drug has more filtered results.
@@ -198,7 +198,7 @@ python src/main.py --drug-names Dextroamphetamine Lisdexamfetamine --filters art
 
 ---
 
-## 📚 Architecture Overview
+## Architecture Overview
 
 This project is designed with modularity and reusability in mind:
 
@@ -212,7 +212,7 @@ This project is designed with modularity and reusability in mind:
 - `summary_builder.py`: Transforms raw API data into a clean, export-ready format while preserving user metadata (timestamp, filters used) and enriching it with sorted manufacturer counts and drugs based on filtered results.
 - `main.py`: Acts as the CLI entry point. It handles argument parsing, orchestrates data fetching and transformation, and triggers export to Google Sheets.
 
-➡️ To adapt this project for another API, simply:
+To adapt this project for another API, simply:
 1. Create a new subclass of `BaseAPIClient`.
 2. Implement a corresponding transformation function (like `summary_builder.py`).
 3. Update the CLI (`main.py`) to reflect the new API’s parameters.
