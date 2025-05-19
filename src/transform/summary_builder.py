@@ -57,7 +57,7 @@ def format_export_data(raw_data):
     rows = []
 
     # --- Metadata ---
-    rows.append(["Created At:", timestamp])
+    rows.append(["Created At:", f"{timestamp}"])
     rows.append(["Filters Used:", filters_str])
     rows.append([])
 

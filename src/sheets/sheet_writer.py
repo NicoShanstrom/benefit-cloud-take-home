@@ -2,7 +2,7 @@ import os
 import gspread
 from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
-from utils.timestamp import safe_sheet_timestamp
+from utils.timestamp import current_timestamp
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ class GoogleSheetsExporter:
         self.sheet = client.open(sheet_name).sheet1
 
     def export_data(self, rows):
-        timestamp = safe_sheet_timestamp()
+        timestamp = current_timestamp()
         new_sheet_title = f"Export {timestamp}"
 
         try:
