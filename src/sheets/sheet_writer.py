@@ -1,7 +1,9 @@
 import os
 import gspread
+import pandas as pd
 from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
+from gspread_dataframe import set_with_dataframe
 from utils.timestamp import safe_sheet_timestamp
 
 load_dotenv()
@@ -18,22 +20,17 @@ class GoogleSheetsExporter:
         creds = ServiceAccountCredentials.from_json_keyfile_name(service_account_path, scope)
         client = gspread.authorize(creds)
 
-        self.sheet = client.open(sheet_name).sheet1
+        # self.sheet = client.open(sheet_name).sheet1
+        self.spreadsheet = client.open(sheet_name)
 
-    def export_data(self, rows):
+    def export_data(self, df: pd.DataFrame):
         timestamp = safe_sheet_timestamp()
-        new_sheet_title = f"Export {timestamp}"
+        sheet_title = f"Export {timestamp}"
 
         try:
-            new_sheet = self.sheet.spreadsheet.add_worksheet(title=new_sheet_title, rows=str(len(rows)+10), cols="10")
+            worksheet = self.spreadsheet.add_worksheet(title=sheet_title, rows="1", cols="1")
+
+            set_with_dataframe(worksheet, df)
+            print(f"Data written to new worksheet: '{sheet_title}'")
         except Exception as e:
-            print(f"[ERROR] Failed to create new worksheet: {e}")
-            return
-
-        for i, row in enumerate(rows):
-            try:
-                new_sheet.insert_row(row, index=i+1)
-            except Exception as e:
-                print(f"[ERROR] Failed to write row {i+1}: {e}")
-
-        print(f"✅ Data written to new worksheet: '{new_sheet_title}'")
+            print(f"[ERROR] Failed to create or write to worksheet: {e}")

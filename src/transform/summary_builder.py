@@ -1,3 +1,4 @@
+import pandas as pd
 from utils.alignment_score import calculate_alignment_score
 from utils.manufacturer_utils import count_manufacturers
 from utils.timestamp import current_timestamp
@@ -6,47 +7,40 @@ def format_export_data(raw_data):
     timestamp = current_timestamp()
     filters_used = raw_data.get("filters_applied", [])
     filters_str = ", ".join([f["label"] for f in filters_used])
-    rows = []
 
-    # Header rows
-    rows.append(["Created At:", timestamp])
-    rows.append(["Filters Used:", filters_str])
-    rows.append([])  # Spacer row
-
-    # Column headers
-    rows.append([
-        "Drug Name",
-        "Total Results",
-        "Filtered Results",
-        "Alignment Score (1-10)",
-    ])
-
-    # Add explanatory note below the headers
-    rows.append(["", "", "", "Based on % of drug variants matching your selected filters"])
-
-    drug_summaries = raw_data.get("summary", [])
+    summary_rows = []
     manufacturer_sections = []
 
+    drug_summaries = raw_data.get("summary", [])
     for summary in drug_summaries:
         drug_name = summary["drug_name"]
         total = summary.get("total_results", 0)
         filtered = summary.get("filtered_results", 0)
         alignment_score = calculate_alignment_score(filtered, total)
-        manufacturer_counts = count_manufacturers(summary.get("data", []))
+        summary_rows.append([drug_name, total, filtered, alignment_score])
 
-        rows.append([drug_name, total, filtered, alignment_score])
+        mfr_counts = count_manufacturers(summary.get("data", []))
+        mfr_df = pd.DataFrame({
+            f"Top Manufacturers for {drug_name}": list(mfr_counts.keys()),
+            "Count": list(mfr_counts.values())
+        })
+        manufacturer_sections.append(mfr_df)
 
-        # Spacer and manufacturer breakdown section
-        manufacturer_sections.append([])
-        manufacturer_sections.append([f"Top Manufacturers for {drug_name}", "Count"])
-        for name, count in manufacturer_counts.items():
-            manufacturer_sections.append([name, count])
+    summary_df = pd.DataFrame(
+        summary_rows,
+        columns=["Drug Name", "Total Results", "Filtered Results", "Alignment Score (0-10)*"]
+    )
 
-    # Final blank line between summary and manufacturer breakdowns
-    rows.append([])
+    metadata = pd.DataFrame([
+        ["Created At:", timestamp],
+        ["Filters Used:", filters_str],
+        ["", ""],
+        ["", "*Based on % of drug variants matching your selected filters"],
+        ["", ""]
+    ])
 
-    # Add manufacturer sections to the export
-    rows.extend(manufacturer_sections)
+    full_df = pd.concat([metadata, summary_df], ignore_index=True)
+    for mfr_df in manufacturer_sections:
+        full_df = pd.concat([full_df, pd.DataFrame([["", ""]]), mfr_df], ignore_index=True)
 
-    return rows
-
+    return full_df
