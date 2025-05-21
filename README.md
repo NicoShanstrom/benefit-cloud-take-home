@@ -35,9 +35,38 @@ Create a `.env` file in the project root and add the following line:
 
 ```env
 GOOGLE_CREDENTIALS_PATH=credentials/service_account.json
+ICHOOSERX_API_BASE_URL=https://ichooserx-api-xxxxxx.a.run.app/api/v1
 ```
 
 Make sure your service account JSON credentials are saved at that path and that the target Google Sheet is shared with the service account email.
+
+### 5. Set Up Google Sheets API Access
+
+To enable this tool to write to your Google Sheet, you'll need to configure a Google Cloud service account:
+
+1. Visit the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create or select an existing project.
+3. Navigate to **APIs & Services > Library** and enable the following APIs:
+   - **Google Sheets API**
+   - **Google Drive API**
+4. Go to **APIs & Services > Credentials**:
+   - Click **"Create Credentials"** and select **"Service Account"**.
+   - Complete the setup (no need to assign roles for this use case).
+   - After creating the account, go to the **"Keys"** tab.
+   - Click **"Add Key"** > **"Create new key"** > choose **JSON**.
+   - Save the generated JSON file in your project at:
+     ```
+     credentials/service_account.json
+     ```
+
+5. Open the JSON file and locate the `client_email` field.
+   - Share the Google Sheet you'll be writing to with that email (like inviting a collaborator).
+
+6. Your `.env` file should contain:
+
+   ```env
+   GOOGLE_CREDENTIALS_PATH=credentials/service_account.json
+   ICHOOSERX_API_BASE_URL=https://ichooserx-api-xxxxxx.a.run.app/api/v1
 
 ---
 
