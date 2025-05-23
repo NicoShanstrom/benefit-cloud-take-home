@@ -30,10 +30,14 @@ class GoogleSheetsExporter:
             print(f"[ERROR] Failed to create new worksheet: {e}")
             return
 
-        for i, row in enumerate(rows):
-            try:
-                new_sheet.insert_row(row, index=i+1)
-            except Exception as e:
-                print(f"[ERROR] Failed to write row {i+1}: {e}")
+        # for i, row in enumerate(rows):
+        #     try:
+        #         new_sheet.insert_row(row, index=i+1)
+        #     except Exception as e:
+        #         print(f"[ERROR] Failed to write row {i+1}: {e}")
+        try:
+            new_sheet.update(rows, 'A1')
+        except Exception as e:
+            print(f"[ERROR] Failed to batch update worksheet: {e}")
 
         print(f"✅ Data written to new worksheet: '{new_sheet_title}'")
