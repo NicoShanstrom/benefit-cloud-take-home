@@ -2,51 +2,55 @@ import pandas as pd
 from utils.alignment_score import calculate_alignment_score
 from utils.manufacturer_utils import count_manufacturers
 from utils.timestamp import current_timestamp
+from serializers.drug_summary_factory import from_api as build_drug_summary
+
+def build_summary_row_header():
+    return [
+        ["Drug Name", "Total Results", "Filtered Results", "Alignment Score (0-10)"],
+        ["", "", "", "Based on % of drug variants matching your selected filters"]
+    ]
+
+def build_manufacturer_section(drug_name, variants):
+    section = [[]]
+    section.append([f"Top Manufacturers for {drug_name}", "Count"])
+
+    mfr_counts = count_manufacturers(variants)
+    mfr_df = pd.DataFrame({
+        "Manufacturer": list(mfr_counts.keys()),
+        "Count": list(mfr_counts.values())
+    }).sort_values(by="Count", ascending=False)
+
+    for _, row in mfr_df.iterrows():
+        section.append([row["Manufacturer"], row["Count"]])
+
+    return section
 
 def format_export_data(raw_data):
     timestamp = current_timestamp()
     filters_used = raw_data.get("filters_applied", [])
     filters_str = ", ".join([f["label"] for f in filters_used])
 
-    rows = []
+    rows = [
+        ["Created At:", f"{timestamp}"],
+        ["Filters Used:", filters_str],
+        [],
+    ]
 
-    rows.append(["Created At:", f"{timestamp}"])
-    rows.append(["Filters Used:", filters_str])
-    rows.append([])
+    rows.extend(build_summary_row_header())
 
-    summary_header = ["Drug Name", "Total Results", "Filtered Results", "Alignment Score (0-10)"]
-    rows.append(summary_header)
-    rows.append(["", "", "", "Based on % of drug variants matching your selected filters"])
-
-    summary_data = []
+    summaries = []
     all_manufacturer_sections = []
 
     for summary in raw_data.get("summary", []):
-        attributes = summary.get("attributes", {})
-        drug_name = attributes.get("drug_name", "N/A")
-        total = attributes.get("total_results", 0)
-        filtered = attributes.get("filtered_results", 0)
-        alignment_score = calculate_alignment_score(filtered, total)
+        drug_summary = build_drug_summary(summary)
+        summaries.append(drug_summary)
 
-        summary_data.append([drug_name, total, filtered, alignment_score])
+        section = build_manufacturer_section(drug_summary.drug_name, drug_summary.variants)
+        all_manufacturer_sections.extend(section)
 
-        mfr_counts = count_manufacturers(attributes.get("variants", []))
-        manufacturer_section = [[]]
-        manufacturer_section.append([f"Top Manufacturers for {drug_name}", "Count"])
-
-        mfr_df = pd.DataFrame({
-            "Manufacturer": list(mfr_counts.keys()),
-            "Count": list(mfr_counts.values())
-        }).sort_values(by="Count", ascending=False)
-
-        for _, row in mfr_df.iterrows():
-            manufacturer_section.append([row["Manufacturer"], row["Count"]])
-
-        all_manufacturer_sections.extend(manufacturer_section)
-
-    summary_df = pd.DataFrame(summary_data, columns=summary_header)
-    summary_df.sort_values(by="Filtered Results", ascending=False, inplace=True)
-    rows.extend(summary_df.values.tolist())
+    summaries.sort(key=lambda x: x.filtered_count, reverse=True)
+    for summary in summaries:
+        rows.append(summary.to_row())
 
     rows.extend(all_manufacturer_sections)
 
