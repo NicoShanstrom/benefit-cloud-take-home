@@ -1,5 +1,5 @@
 from collections import Counter
 
-def count_manufacturers(drug_data: list) -> dict:
-    manufacturers = [entry["manufacturer_name"] for entry in drug_data if "manufacturer_name" in entry]
+def count_manufacturers(variants: list) -> dict:
+    manufacturers = [v.manufacturer_name for v in variants if v.manufacturer_name]
     return dict(Counter(manufacturers))
